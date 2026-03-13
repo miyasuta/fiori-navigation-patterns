@@ -5,6 +5,16 @@ annotate service.Orders with {
     orderId @Common.SemanticObject: 'NavTarget';
 };
 
+// B-1: SemanticObjectMapping — supplierId (source) is passed as vendor (target)
+// B-3: SemanticObjectMapping — _Supplier/category (nav field) is passed as supplierCategory (target)
+// B-2 (no-op): _Supplier/region is NOT mapped → region field in nav-target remains empty after navigation
+annotate service.Orders with {
+    supplierId @Common.SemanticObjectMapping: [
+        { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
+        { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
+    ];
+};
+
 annotate service.Orders with @(
     UI.FieldGroup #GeneratedGroup : {
         $Type : 'UI.FieldGroupType',
@@ -29,13 +39,15 @@ annotate service.Orders with @(
         { $Type: 'UI.DataField', Label: 'Order ID (A-1: Semantic Link)', Value: orderId      },
 
         // A-4: Inline IBN — one button per row, appears inside the row
+        // B-4: NavigationAvailable hides the button for rows where isNavEnabled=false (ORD002, ORD005)
         {
-            $Type          : 'UI.DataFieldForIntentBasedNavigation',
-            Label          : 'Open (A-4: Inline)',
-            SemanticObject : 'NavTarget',
-            Action         : 'display',
-            RequiresContext: true,
-            Inline         : true,
+            $Type               : 'UI.DataFieldForIntentBasedNavigation',
+            Label               : 'Open (A-4: Inline)',
+            SemanticObject      : 'NavTarget',
+            Action              : 'display',
+            RequiresContext     : true,
+            Inline              : true,
+            NavigationAvailable : isNavEnabled,
         },
 
         // A-5: URL Link — cell shows the URL and opens it in a new tab
@@ -66,12 +78,14 @@ annotate service.Orders with @(
         },
 
         // A-3: IBN button requires row selection (disabled until a row is selected)
+        // B-4: NavigationAvailable hides the button for rows where isNavEnabled=false (ORD002, ORD005)
         {
-            $Type          : 'UI.DataFieldForIntentBasedNavigation',
-            Label          : 'Navigate (A-3: With Context)',
-            SemanticObject : 'NavTarget',
-            Action         : 'display',
-            RequiresContext: true,
+            $Type               : 'UI.DataFieldForIntentBasedNavigation',
+            Label               : 'Navigate (A-3: With Context)',
+            SemanticObject      : 'NavTarget',
+            Action              : 'display',
+            RequiresContext     : true,
+            NavigationAvailable : isNavEnabled,
         },
     ],
 );

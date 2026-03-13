@@ -62,3 +62,22 @@ describe('NavigationTargetService', () => {
     assert.ok('supplierCategory' in target, 'supplierCategory field required')
   })
 })
+
+describe('Group B Annotation Structure', () => {
+  const { GET } = cds.test(__dirname + '/..')
+
+  // B-1 + B-3: SemanticObjectMapping must appear in $metadata for NavigationSourceService
+  it('metadataShouldContainSemanticObjectMappingForSupplierId', async () => {
+    const { data } = await GET('/odata/v4/navigation-source/$metadata')
+    assert.ok(
+      data.includes('SemanticObjectMapping'),
+      'SemanticObjectMapping annotation must be present in $metadata'
+    )
+  })
+
+  // B-4: Orders with isNavEnabled=false must exist (NavigationAvailable data prerequisite)
+  it('ordersWithNavDisabledShouldExist', async () => {
+    const { data } = await GET('/odata/v4/navigation-source/Orders?$filter=isNavEnabled eq false')
+    assert.ok(data.value.length > 0, 'At least one order with isNavEnabled=false is required for B-4')
+  })
+})
