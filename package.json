@@ -1,0 +1,26 @@
+{
+  "name": "fiori-navigation-patterns",
+  "version": "1.0.0",
+  "dependencies": {
+    "@sap/cds": "^9"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^0.4.1",
+    "@cap-js/sqlite": "^2",
+    "cds-launchpad-plugin": "^2.2.0",
+    "cds-plugin-ui5": "^0.13.0"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch-nav-source": "cds watch --open navsource/index.html?sap-ui-xx-viewCache=false --livereload false",
+    "watch-nav-target": "cds watch --open navtarget/index.html?sap-ui-xx-viewCache=false --livereload false"
+  },
+  "private": true,
+  "workspaces": [
+    "app/*"
+  ],
+  "sapux": [
+    "app/nav-source",
+    "app/nav-target"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "generationParameters": {
+    "generationDate": "Sat Mar 14 2026 05:43:12 GMT+0900 (Japan Standard Time)",
+    "generatorPlatform": "CLI",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/odata/v4/navigation-source/",
+    "appName": "nav-source",
+    "appTitle": "Navigation Source",
+    "appDescription": "Outbound navigation patterns showcase (source app)",
+    "appNamespace": "",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.136.7",
+    "enableEslint": false,
+    "enableTypeScript": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.20.4",
+    "template": "List Report Page V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [
+      {
+        "type": "Main Entity",
+        "value": "Orders"
+      }
+    ],
+    "launchText": "To launch the generated app, start your CAP project:  and navigate to the following location in your browser:\n\nhttp://localhost:4004/nav-source/webapp/index.html"
+  }
+}

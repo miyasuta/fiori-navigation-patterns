@@ -1,0 +1,6 @@
+orderId,description,amount,status,region,supplierId,isNavEnabled,externalUrl
+ORD001,First Order,10000,Open,JP,S001,true,https://www.sap.com
+ORD002,Second Order,25000,InProgress,DE,S002,false,https://cap.cloud.sap
+ORD003,Third Order,5000,Closed,US,S003,true,https://ui5.sap.com
+ORD004,Fourth Order,8000,Open,JP,S001,true,https://community.sap.com
+ORD005,Fifth Order,3000,Closed,DE,S002,false,https://developers.sap.com

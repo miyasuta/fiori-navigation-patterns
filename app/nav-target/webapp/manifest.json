@@ -1,0 +1,182 @@
+{
+  "_version": "1.73.1",
+  "sap.app": {
+    "id": "navtarget",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.20.4",
+      "toolsId": "9be1df2e-2715-4aa8-bbcf-9dc65418e516"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/navigation-target/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "NavTarget-display": {
+          "semanticObject": "NavTarget",
+          "action": "display",
+          "title": "Navigation Target",
+          "icon": "sap-icon://target-group",
+          "signature": {
+            "parameters": {
+              "orderId":          { "required": false },
+              "supplierId":       { "required": false },
+              "region":           { "required": false },
+              "vendor":           { "required": false },
+              "supplierCategory": { "required": false }
+            },
+            "additionalParameters": "allowed"
+          }
+        },
+        "NavTarget-manage": {
+          "semanticObject": "NavTarget",
+          "action": "manage",
+          "title": "Navigation Target (Manage)",
+          "icon": "sap-icon://target-group",
+          "signature": {
+            "parameters": {
+              "orderId":          { "required": false },
+              "supplierId":       { "required": false },
+              "region":           { "required": false },
+              "vendor":           { "required": false },
+              "supplierCategory": { "required": false }
+            },
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.136.7",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "navtarget.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "NavTargetsList",
+          "target": "NavTargetsList"
+        },
+        {
+          "pattern": "NavTargets({key}):?query:",
+          "name": "NavTargetsObjectPage",
+          "target": "NavTargetsObjectPage"
+        }
+      ],
+      "targets": {
+        "NavTargetsList": {
+          "type": "Component",
+          "id": "NavTargetsList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/NavTargets",
+              "variantManagement": "Page",
+              "navigation": {
+                "NavTargets": {
+                  "detail": {
+                    "route": "NavTargetsObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "NavTargetsObjectPage": {
+          "type": "Component",
+          "id": "NavTargetsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/NavTargets"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  },
+  "sap.fe": {
+    "app": {
+      "enableLazyLoading": true
+    }
+  }
+}
