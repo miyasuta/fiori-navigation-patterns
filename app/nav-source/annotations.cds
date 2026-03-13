@@ -1,17 +1,20 @@
 using NavigationSourceService as service from '../../srv/service';
 
 // A-1: Semantic Link — orderId column becomes a clickable semantic link
-// B-1: SemanticObjectMapping — when A-1 link is followed, supplierId is renamed to vendor
-// B-3: SemanticObjectMapping — when A-1 link is followed, _Supplier/category is renamed to supplierCategory
-// B-2 (no-op): _Supplier/region is NOT mapped → region field in nav-target remains empty after navigation
-// NOTE: SemanticObjectMapping is co-located with SemanticObject (orderId) and applies to A-1 only.
+// B-1: SemanticObjectMapping on orderId — when A-1 link is followed, supplierId is renamed to vendor
+// NOTE: SemanticObjectMapping must be co-located with SemanticObject and applies to A-1 only.
 //       For IBN buttons (A-3/A-4), parameter renaming via this annotation has no effect.
 annotate service.Orders with {
-    orderId @Common.SemanticObject: 'NavTarget'
-            @Common.SemanticObjectMapping: [
-                { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
-                { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
-            ];
+    orderId   @Common.SemanticObject: 'NavTarget'
+              @Common.SemanticObjectMapping: [
+                  { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
+              ];
+    // B-3: SemanticObjectMapping on _Supplier (navigation property) — passes _Supplier/category
+    //      as supplierCategory in the navigation context (per SAP doc: mapping must be on the nav property)
+    // B-2 (contrast): _Supplier/region has NO mapping → region is NOT passed → nav-target region stays empty
+    _Supplier @Common.SemanticObjectMapping: [
+                  { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
+              ];
 };
 
 annotate service.Orders with @(
@@ -22,7 +25,6 @@ annotate service.Orders with @(
             { $Type: 'UI.DataField', Label: 'Description', Value: description  },
             { $Type: 'UI.DataField', Label: 'Amount',      Value: amount       },
             { $Type: 'UI.DataField', Label: 'Status',      Value: status       },
-            { $Type: 'UI.DataField', Label: 'Region',      Value: region       },
             { $Type: 'UI.DataField', Label: 'Supplier ID', Value: supplierId   },
             { $Type: 'UI.DataField', Label: 'Nav Enabled', Value: isNavEnabled },
         ],
@@ -59,12 +61,12 @@ annotate service.Orders with @(
         },
 
         // ── Data columns ──────────────────────────────────────────────────
-        { $Type: 'UI.DataField', Label: 'Description', Value: description  },
-        { $Type: 'UI.DataField', Label: 'Amount',      Value: amount       },
-        { $Type: 'UI.DataField', Label: 'Status',      Value: status       },
-        { $Type: 'UI.DataField', Label: 'Region',      Value: region       },
-        { $Type: 'UI.DataField', Label: 'Supplier ID', Value: supplierId   },
-        { $Type: 'UI.DataField', Label: 'Nav Enabled', Value: isNavEnabled },
+        { $Type: 'UI.DataField', Label: 'Description',      Value: description          },
+        { $Type: 'UI.DataField', Label: 'Amount',           Value: amount               },
+        { $Type: 'UI.DataField', Label: 'Status',           Value: status               },
+        { $Type: 'UI.DataField', Label: 'Supplier ID',      Value: supplierId           },
+        { $Type: 'UI.DataField', Label: 'Supplier Region',  Value: _Supplier.region     },
+        { $Type: 'UI.DataField', Label: 'Nav Enabled',      Value: isNavEnabled         },
 
         // ── Toolbar buttons ───────────────────────────────────────────────
         // A-2: IBN button always enabled (no row selection needed)

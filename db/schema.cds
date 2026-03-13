@@ -12,7 +12,6 @@ entity Orders {
       description  : String(100);
       amount       : Decimal(10, 2);
       status       : String(20);
-      region       : String(10);
       supplierId   : String(10);
       isNavEnabled : Boolean;
       externalUrl  : String(200);

@@ -230,36 +230,36 @@ annotate service.Orders with {
 
 **What to verify (A-1 only):** Click the `orderId` semantic link. In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value. The `supplierId` filter field is NOT pre-filled (parameter name was renamed).
 
----
-
-### B-2: Association field without mapping (default behavior)
-
-Navigation context is built from direct entity fields only. Association-path fields like `_Supplier/region` are **not** included by default.
-
-**Implementation:** No code change needed — this pattern documents the default behavior.
-
-**What to verify:** After navigating via A-1 (Semantic Link), the `region` filter field in nav-target remains empty, even though the selected order has a supplier with a region value.
+> **One field, one target name:** A mapped field is sent *only* under the mapped name (`vendor`). It is **not** sent under its original name (`supplierId`) at the same time. If you need the value available under both names, you would need two separate fields — this is a structural constraint of `SemanticObjectMapping`.
 
 ---
 
-### B-3: Association field with explicit mapping
+### B-2: Association field without mapping — not passed
 
-To include an association-path field in the context, map it explicitly via `SemanticObjectMapping`. Here `_Supplier/category` is sent as `supplierCategory`.
+`Orders` has no direct `region` field. `Suppliers` has `region`, but it is only accessible via the `_Supplier` navigation property. Without a `SemanticObjectMapping` on `_Supplier`, `_Supplier/region` is excluded from the navigation context.
 
-**Applies to:** A-1 (Semantic Link) only — same constraint as B-1.
+**Implementation:** No code change needed — the absence of mapping is the pattern itself.
 
-**Implementation** — `app/nav-source/annotations.cds` (combined with B-1):
+**What to verify (A-1):** Click the `orderId` semantic link. In nav-target, the `region` filter field is **empty** — confirming that `_Supplier/region` is not passed by default.
+
+---
+
+### B-3: Association field with SemanticObjectMapping on the navigation property
+
+Per SAP documentation, association fields are included in the navigation context **if a `SemanticObjectMapping` is defined on the navigation property itself** (not on a scalar property like `orderId`).
+
+Here `_Supplier/category` is sent as `supplierCategory` by placing the mapping on `_Supplier`.
+
+**Implementation** — `app/nav-source/annotations.cds`:
 ```cds
 annotate service.Orders with {
-    orderId @Common.SemanticObject: 'NavTarget'
-            @Common.SemanticObjectMapping: [
-                { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
-                { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
-            ];
+    _Supplier @Common.SemanticObjectMapping: [
+        { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
+    ];
 };
 ```
 
-**What to verify (A-1 only):** Click the `orderId` semantic link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value.
+**What to verify (A-1):** Click the `orderId` semantic link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping for `_Supplier/region` — this is the B-2 contrast).
 
 ---
 

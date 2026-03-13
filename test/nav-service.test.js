@@ -15,7 +15,6 @@ describe('NavigationSourceService', () => {
     assert.ok('description' in order, 'description field required')
     assert.ok('amount' in order, 'amount field required')
     assert.ok('status' in order, 'status field required')
-    assert.ok('region' in order, 'region field required')
     assert.ok('supplierId' in order, 'supplierId field required')
     assert.ok('isNavEnabled' in order, 'isNavEnabled field required')
     assert.ok('externalUrl' in order, 'externalUrl field required')
