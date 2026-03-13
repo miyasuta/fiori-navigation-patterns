@@ -7,7 +7,7 @@ A CAP Node.js + SAP Fiori Elements (OData V4) project that demonstrates outbound
 This project serves as a hands-on reference for developers learning how to implement cross-application navigation in SAP Fiori Elements apps. It covers two groups of patterns:
 
 - **Group A** — How to trigger navigation (implemented)
-- **Group B** — What context gets passed to the target app (planned)
+- **Group B** — What context gets passed to the target app (implemented)
 
 ## Getting Started
 
@@ -204,6 +204,94 @@ UI.SelectionFields: [ orderId, supplierId, region, vendor, supplierCategory ]
 
 ---
 
+---
+
+## Group B — Navigation Context Control
+
+All patterns control **what data is passed** to the target app during IBN navigation.
+
+### B-1: SemanticObjectMapping (field rename)
+
+`SemanticObjectMapping` renames a local field when it is passed as a navigation parameter. Here `supplierId` on the source is sent as `vendor` to the target.
+
+**Applies to:** A-1 (Semantic Link) only. For IBN buttons (A-3/A-4) and row-click (A-6), parameter renaming via this annotation has no effect — those navigations pass fields under their original names.
+
+**Key rule:** `@Common.SemanticObjectMapping` must be placed on the **same property** as `@Common.SemanticObject`. The FLP resolves the mapping only when following a semantic link tied to that semantic object.
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+annotate service.Orders with {
+    orderId @Common.SemanticObject: 'NavTarget'
+            @Common.SemanticObjectMapping: [
+                { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
+            ];
+};
+```
+
+**What to verify (A-1 only):** Click the `orderId` semantic link. In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value. The `supplierId` filter field is NOT pre-filled (parameter name was renamed).
+
+---
+
+### B-2: Association field without mapping (default behavior)
+
+Navigation context is built from direct entity fields only. Association-path fields like `_Supplier/region` are **not** included by default.
+
+**Implementation:** No code change needed — this pattern documents the default behavior.
+
+**What to verify:** After navigating via A-1 (Semantic Link), the `region` filter field in nav-target remains empty, even though the selected order has a supplier with a region value.
+
+---
+
+### B-3: Association field with explicit mapping
+
+To include an association-path field in the context, map it explicitly via `SemanticObjectMapping`. Here `_Supplier/category` is sent as `supplierCategory`.
+
+**Applies to:** A-1 (Semantic Link) only — same constraint as B-1.
+
+**Implementation** — `app/nav-source/annotations.cds` (combined with B-1):
+```cds
+annotate service.Orders with {
+    orderId @Common.SemanticObject: 'NavTarget'
+            @Common.SemanticObjectMapping: [
+                { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
+                { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
+            ];
+};
+```
+
+**What to verify (A-1 only):** Click the `orderId` semantic link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value.
+
+---
+
+### B-4: NavigationAvailable (conditional button visibility)
+
+`NavigationAvailable` controls whether an IBN button is shown for a given row. When the bound field is `false`, the button is hidden for that row.
+
+In this project, `ORD002` and `ORD005` have `isNavEnabled = false` — their inline button (A-4) and context-aware toolbar button (A-3) are hidden.
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+// A-4 Inline
+{
+    $Type               : 'UI.DataFieldForIntentBasedNavigation',
+    ...
+    NavigationAvailable : isNavEnabled,
+}
+
+// A-3 Toolbar (requires selection)
+{
+    $Type               : 'UI.DataFieldForIntentBasedNavigation',
+    ...
+    NavigationAvailable : isNavEnabled,
+}
+```
+
+**What to verify:** Rows for ORD002 and ORD005 show no inline navigation button. Selecting those rows keeps the A-3 toolbar button disabled.
+
+> **Note:** `NavigationAvailable` does not apply to A-2 (`RequiresContext: false`) because that button carries no row context.
+
+---
+
 ## Known Constraints
 
 | Constraint | Detail |
@@ -223,7 +311,7 @@ srv/
   service.cds             — NavigationSourceService, NavigationTargetService
 
 app/nav-source/
-  annotations.cds         — A-1 through A-5 annotations
+  annotations.cds         — A-1 through A-5 annotations, B-1/B-3/B-4 context annotations
   webapp/manifest.json    — A-6, crossNavigation.outbounds, FLP inbound
 
 app/nav-target/

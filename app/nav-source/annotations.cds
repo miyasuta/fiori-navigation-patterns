@@ -1,18 +1,17 @@
 using NavigationSourceService as service from '../../srv/service';
 
 // A-1: Semantic Link — orderId column becomes a clickable semantic link
-annotate service.Orders with {
-    orderId @Common.SemanticObject: 'NavTarget';
-};
-
-// B-1: SemanticObjectMapping — supplierId (source) is passed as vendor (target)
-// B-3: SemanticObjectMapping — _Supplier/category (nav field) is passed as supplierCategory (target)
+// B-1: SemanticObjectMapping — when A-1 link is followed, supplierId is renamed to vendor
+// B-3: SemanticObjectMapping — when A-1 link is followed, _Supplier/category is renamed to supplierCategory
 // B-2 (no-op): _Supplier/region is NOT mapped → region field in nav-target remains empty after navigation
+// NOTE: SemanticObjectMapping is co-located with SemanticObject (orderId) and applies to A-1 only.
+//       For IBN buttons (A-3/A-4), parameter renaming via this annotation has no effect.
 annotate service.Orders with {
-    supplierId @Common.SemanticObjectMapping: [
-        { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
-        { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
-    ];
+    orderId @Common.SemanticObject: 'NavTarget'
+            @Common.SemanticObjectMapping: [
+                { LocalProperty: supplierId,           SemanticObjectProperty: 'vendor'           },
+                { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
+            ];
 };
 
 annotate service.Orders with @(
