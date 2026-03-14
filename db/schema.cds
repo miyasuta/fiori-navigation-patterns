@@ -8,14 +8,17 @@ entity Suppliers {
 }
 
 entity Orders {
-  key orderId      : String(10);
-      description  : String(100);
-      amount       : Decimal(10, 2);
-      status       : String(20);
-      supplierId   : String(10);
-      isNavEnabled : Boolean;
-      externalUrl  : String(200);
-      _Supplier    : Association to Suppliers on _Supplier.supplierId = supplierId;
+  key orderId        : String(10);
+      description    : String(100);
+      amount         : Decimal(10, 2);
+      status         : String(20);
+      supplierId     : String(10);
+      isNavEnabled   : Boolean;
+      externalUrl    : String(200);
+      internalNote   : String(100);
+      semanticObject : String(50);
+      navAction      : String(50);
+      _Supplier      : Association to Suppliers on _Supplier.supplierId = supplierId;
 }
 
 entity NavTargets {
@@ -26,4 +29,5 @@ entity NavTargets {
       region           : String(10);
       vendor           : String(10);
       supplierCategory : String(50);
+      internalNote     : String(100);
 }

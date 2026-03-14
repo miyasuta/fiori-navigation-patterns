@@ -35,7 +35,9 @@ All patterns are visible in the **nav-source List Report**.
 
 ### A-1: Semantic Link
 
-The `orderId` column renders as a clickable link. Clicking it opens a quick-actions popover listing all registered intents for the `NavTarget` semantic object. Since both `NavTarget-display` and `NavTarget-manage` are registered as inbounds, the popover shows two navigation options — demonstrating that a single semantic link can resolve to multiple targets.
+The `orderId` column renders as a clickable link. Clicking it opens a quick-actions popover listing all registered intents for the `NavTarget` semantic object. Three inbounds are registered (`display`, `manage`, `analyze`), but `analyze` is suppressed via `SemanticObjectUnavailableActions` — so the popover shows two navigation options. This demonstrates both multi-target resolution and selective action hiding.
+
+![A-1: Semantic Link](docs/images/A-1.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -44,7 +46,7 @@ annotate service.Orders with {
 };
 ```
 
-**What to verify:** `orderId` cells appear as blue hyperlinks. Clicking one opens a popover with two options: "Navigation Target" (display) and "Navigation Target (Manage)" (manage).
+**What to verify:** `orderId` cells appear as blue hyperlinks. Clicking one opens a popover with two options: "Navigation Target" (display) and "Navigation Target (Manage)" (manage). The "analyze" action is not shown.
 
 ---
 
@@ -53,6 +55,8 @@ annotate service.Orders with {
 A toolbar button that is always active, even without selecting a row. Navigates to `NavTarget-display` with no entity context.
 
 IBN (Intent-Based Navigation) is a decoupled navigation mechanism in SAP Fiori. Instead of hardcoding a target URL, the source app declares a semantic intent (`SemanticObject` + `Action`). The FLP resolves the intent at runtime and routes to the registered target app.
+
+![A-2: IBN Button (always enabled)](docs/images/A-2.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -73,6 +77,8 @@ IBN (Intent-Based Navigation) is a decoupled navigation mechanism in SAP Fiori. 
 
 A toolbar button that is disabled until one or more rows are selected. Passes the selected row's context to the target.
 
+![A-3: IBN Action (requires row selection)](docs/images/A-3.png)
+
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
 {
@@ -91,6 +97,8 @@ A toolbar button that is disabled until one or more rows are selected. Passes th
 ### A-4: Inline IBN
 
 A button rendered inside each row (not in the toolbar). Each button carries that row's context.
+
+![A-4: Inline IBN](docs/images/A-4.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -114,6 +122,8 @@ A button rendered inside each row (not in the toolbar). Each button carries that
 
 A table column whose cell value is rendered as a hyperlink to an external URL. Opens in a new browser tab.
 
+![A-5: URL Link](docs/images/A-5.png)
+
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
 {
@@ -132,6 +142,8 @@ A table column whose cell value is rendered as a hyperlink to an external URL. O
 ### A-6: Replace Row-Click Navigation
 
 By default, clicking a row navigates to the Object Page. This pattern replaces that behavior so the row click (chevron) navigates to an external app instead.
+
+![A-6: Replace Row-Click Navigation](docs/images/A-6.png)
 
 **Implementation** — `app/nav-source/webapp/manifest.json`:
 ```json
@@ -169,6 +181,96 @@ By default, clicking a row navigates to the Object Page. This pattern replaces t
 **What to verify:** Clicking a row (or the chevron) navigates to the Navigation Target app instead of an Object Page.
 
 > **Constraint:** Once `detail.outbound` is set, the Object Page is no longer reachable via row click. The route still exists in the manifest but is bypassed.
+
+---
+
+## Group A — Supplementary Patterns
+
+### Dynamic Semantic Object (A-1 only)
+
+`Common.SemanticObject` accepts a property path reference, allowing the semantic object to be resolved per row at runtime. Rows where the resolved semantic object has no registered FLP inbounds are rendered as plain text — no link is shown.
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+annotate service.Orders with {
+    orderId @Common.SemanticObject: semanticObject;  // property reference, no quotes
+};
+```
+
+```cds
+// db/schema.cds
+entity Orders {
+    ...
+    semanticObject : String(50);  // e.g. 'NavTarget', 'Customer', ''
+}
+```
+
+**What to verify:** Rows with `semanticObject = 'NavTarget'` show `orderId` as a blue hyperlink. A row with an unregistered value (e.g. `'Customer'`) shows `orderId` as plain text.
+
+> **A-1 only — IBN buttons do not support dynamic binding.**
+> Setting `SemanticObject` or `Action` to a property path in `DataFieldForIntentBasedNavigation` (A-3/A-4) is not supported by Fiori Elements:
+> - Both as path → List Report fails to render entirely
+> - `SemanticObject` as path only → app renders but navigation fails with "Navigation to this application is not supported"
+>
+> The dynamic path feature of `Common.SemanticObject` is specific to the semantic link mechanism, where the FLP resolves intents at click time. IBN buttons declare a static intent at annotation time and cannot resolve it dynamically.
+
+---
+
+### NavigationAvailable (Conditional Button Visibility)
+
+`NavigationAvailable` controls whether an IBN button is shown for a given row. When the bound field is `false`, the button is hidden for that row.
+
+In this project, `ORD002` and `ORD005` have `isNavEnabled = false` — their inline button (A-4) and context-aware toolbar button (A-3) are hidden.
+
+![NavigationAvailable: Conditional Button Visibility](docs/images/Conditional%20Button%20Visibility.png)
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+// A-4 Inline
+{
+    $Type               : 'UI.DataFieldForIntentBasedNavigation',
+    ...
+    NavigationAvailable : isNavEnabled,
+}
+
+// A-3 Toolbar (requires selection)
+{
+    $Type               : 'UI.DataFieldForIntentBasedNavigation',
+    ...
+    NavigationAvailable : isNavEnabled,
+}
+```
+
+**What to verify:** Rows for ORD002 and ORD005 show no inline navigation button. Selecting those rows keeps the A-3 toolbar button disabled.
+
+> **Note:** `NavigationAvailable` does not apply to A-2 (`RequiresContext: false`) because that button carries no row context.
+
+---
+
+### Hiding Unwanted Actions from a Semantic Object
+
+`SemanticObjectUnavailableActions` hides specific actions from the popover shown when a semantic link is clicked (A-1). The actions are still registered as inbound targets in the FLP — they are just suppressed from appearing as navigation options.
+
+In this project, three inbounds are registered for `NavTarget`: `display`, `manage`, and `analyze`. Without the annotation, all three appear in the A-1 popover. Adding `SemanticObjectUnavailableActions: ['analyze']` keeps `display` and `manage` visible while hiding `analyze`.
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+annotate service.Orders with {
+    orderId @Common.SemanticObjectUnavailableActions: ['analyze'];
+};
+```
+
+**Inbound registration** — `app/nav-target/webapp/manifest.json`:
+```json
+"NavTarget-analyze": {
+  "semanticObject": "NavTarget",
+  "action": "analyze",
+  "title": "Navigation Target (Analyze)",
+  ...
+}
+```
+
+**What to verify:** Click the `orderId` semantic link. The popover shows two options — "Navigation Target" (display) and "Navigation Target (Manage)" (manage). The "analyze" action does not appear, even though it is registered as an inbound.
 
 ---
 
@@ -267,32 +369,34 @@ Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation
 
 ---
 
-### B-4: NavigationAvailable (conditional button visibility)
+### B-4: Handling Sensitive and Inapplicable Data
 
-`NavigationAvailable` controls whether an IBN button is shown for a given row. When the bound field is `false`, the button is hidden for that row.
+During outbound navigation, SAP Fiori Elements automatically removes certain properties from the navigation context. These are not passed to the target app regardless of what the navigation trigger is.
 
-In this project, `ORD002` and `ORD005` have `isNavEnabled = false` — their inline button (A-4) and context-aware toolbar button (A-3) are hidden.
+Three annotation types cause a property to be excluded:
+
+| Annotation | Description |
+|---|---|
+| `PersonalData.IsPotentiallySensitive` | Personally identifiable or sensitive data (e.g. credit card numbers) |
+| `UI.ExcludeFromNavigationContext` | Explicitly opt out any field from the navigation context |
+| `Common.FieldControl` → `Inapplicable` | Fields that are not applicable for the selected row at runtime |
+
+Measures in analytical services (`Analytics.v1.CustomAggregate`) are also excluded automatically.
+
+These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, and A-6 alike. A-2 carries no row context to begin with, and A-5 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
+
+In this project, `internalNote` is annotated with `UI.ExcludeFromNavigationContext`. The field is visible in the nav-source table and also appears as a filter bar field in nav-target — but it is never included in the navigation parameters regardless of which trigger is used.
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
-// A-4 Inline
-{
-    $Type               : 'UI.DataFieldForIntentBasedNavigation',
-    ...
-    NavigationAvailable : isNavEnabled,
-}
-
-// A-3 Toolbar (requires selection)
-{
-    $Type               : 'UI.DataFieldForIntentBasedNavigation',
-    ...
-    NavigationAvailable : isNavEnabled,
-}
+annotate service.Orders with {
+    internalNote @UI.ExcludeFromNavigationContext;
+};
 ```
 
-**What to verify:** Rows for ORD002 and ORD005 show no inline navigation button. Selecting those rows keeps the A-3 toolbar button disabled.
+**What to verify:** Select any row in nav-source (e.g. ORD001, which has `internalNote = "Check payment terms before shipping"`) and navigate using A-1, A-3, or A-4. In nav-target, the `orderId` filter field is pre-filled — but the `internalNote (B-4: ExcludeFromNavigationContext)` filter field is empty for all navigation triggers, confirming the exclusion is pattern-independent.
 
-> **Note:** `NavigationAvailable` does not apply to A-2 (`RequiresContext: false`) because that button carries no row context.
+> **Caution:** Sensitive properties of navigation entities beyond one level are **not** automatically removed from the navigation context.
 
 ---
 
@@ -315,12 +419,12 @@ srv/
   service.cds             — NavigationSourceService, NavigationTargetService
 
 app/nav-source/
-  annotations.cds         — A-1 through A-5 annotations, B-1/B-3/B-4 context annotations
+  annotations.cds         — A-1 through A-5 annotations, B-1/B-3/B-4 context annotations, SemanticObjectUnavailableActions
   webapp/manifest.json    — A-6, crossNavigation.outbounds, FLP inbound
 
 app/nav-target/
   annotations.cds         — SelectionFields for filter bar population
-  webapp/manifest.json    — crossNavigation.inbounds (NavTarget-display, NavTarget-manage)
+  webapp/manifest.json    — crossNavigation.inbounds (NavTarget-display, NavTarget-manage, NavTarget-analyze)
 
 test/
   nav-service.test.js     — OData protocol-level tests

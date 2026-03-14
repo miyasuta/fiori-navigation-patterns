@@ -58,6 +58,19 @@
             },
             "additionalParameters": "allowed"
           }
+        },
+        "NavTarget-analyze": {
+          "semanticObject": "NavTarget",
+          "action": "analyze",
+          "title": "Navigation Target (Analyze)",
+          "icon": "sap-icon://target-group",
+          "signature": {
+            "parameters": {
+              "orderId":          { "required": false },
+              "supplierId":       { "required": false }
+            },
+            "additionalParameters": "allowed"
+          }
         }
       }
     }

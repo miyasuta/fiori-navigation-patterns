@@ -8,10 +8,12 @@ using NavigationSourceService as service from '../../srv/service';
 //       reference navigation entity fields). Navigation entity properties can only be passed via
 //       DataFieldForIntentBasedNavigation.Mapping (IBN button pattern — see B-3 on A-3/A-4 below).
 annotate service.Orders with {
-    orderId @Common.SemanticObject: 'NavTarget'
-            @Common.SemanticObjectMapping: [
+    orderId @Common.SemanticObject              : semanticObject
+            @Common.SemanticObjectMapping       : [
                 { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
-            ];
+            ]
+            @Common.SemanticObjectUnavailableActions: ['analyze'];
+    internalNote @UI.ExcludeFromNavigationContext;
 };
 
 annotate service.Orders with @(
@@ -69,6 +71,8 @@ annotate service.Orders with @(
         // B-3: category must be visible in the table for SemanticObjectMapping to pass it
         { $Type: 'UI.DataField', Label: 'Supplier Category', Value: _Supplier.category  },
         { $Type: 'UI.DataField', Label: 'Nav Enabled',      Value: isNavEnabled         },
+        // B-4: internalNote is visible in the table but excluded from the navigation context
+        { $Type: 'UI.DataField', Label: 'Internal Note',   Value: internalNote         },
 
         // ── Toolbar buttons ───────────────────────────────────────────────
         // A-2: IBN button always enabled (no row selection needed)

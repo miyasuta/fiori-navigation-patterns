@@ -7,6 +7,7 @@ annotate service.NavTargets with {
     region           @Common.Label: 'Region';
     vendor           @Common.Label: 'vendor (B-2: SemanticObjectMapping)';
     supplierCategory @Common.Label: 'supplierCategory (B-3: IBN Mapping)';
+    internalNote     @Common.Label: 'internalNote (B-4: ExcludeFromNavigationContext)';
 };
 
 annotate service.NavTargets with @(
@@ -18,6 +19,7 @@ annotate service.NavTargets with @(
         region,
         vendor,
         supplierCategory,
+        internalNote,
     ],
     UI.FieldGroup #GeneratedGroup : {
         $Type : 'UI.FieldGroupType',
@@ -28,6 +30,7 @@ annotate service.NavTargets with @(
             { $Type: 'UI.DataField', Label: 'Region',            Value: region           },
             { $Type: 'UI.DataField', Label: 'Vendor',            Value: vendor           },
             { $Type: 'UI.DataField', Label: 'Supplier Category', Value: supplierCategory },
+            { $Type: 'UI.DataField', Label: 'Internal Note',     Value: internalNote     },
         ],
     },
     UI.Facets : [{
@@ -43,5 +46,6 @@ annotate service.NavTargets with @(
         { $Type: 'UI.DataField', Label: 'Region',            Value: region           },
         { $Type: 'UI.DataField', Label: 'Vendor',            Value: vendor           },
         { $Type: 'UI.DataField', Label: 'Supplier Category', Value: supplierCategory },
+        { $Type: 'UI.DataField', Label: 'Internal Note',     Value: internalNote     },
     ],
 );

@@ -1,6 +1,6 @@
-orderId,description,amount,status,supplierId,isNavEnabled,externalUrl
-ORD001,First Order,10000,Open,S001,true,https://www.sap.com
-ORD002,Second Order,25000,InProgress,S002,false,https://cap.cloud.sap
-ORD003,Third Order,5000,Closed,S003,true,https://ui5.sap.com
-ORD004,Fourth Order,8000,Open,S001,true,https://community.sap.com
-ORD005,Fifth Order,3000,Closed,S002,false,https://developers.sap.com
+orderId,description,amount,status,supplierId,isNavEnabled,externalUrl,internalNote,semanticObject,navAction
+ORD001,First Order,10000,Open,S001,true,https://www.sap.com,Check payment terms before shipping,NavTarget,display
+ORD002,Second Order,25000,InProgress,S002,false,https://cap.cloud.sap,Pending credit approval,NavTarget,manage
+ORD003,Third Order,5000,Closed,S003,true,https://ui5.sap.com,Archived - no action needed,Customer,display
+ORD004,Fourth Order,8000,Open,S001,true,https://community.sap.com,Follow up with supplier S001,NavTarget,manage
+ORD005,Fifth Order,3000,Closed,S002,false,https://developers.sap.com,Dispute resolved internally,NavTarget,display
