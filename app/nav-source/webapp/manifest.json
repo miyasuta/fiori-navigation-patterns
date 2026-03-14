@@ -126,6 +126,7 @@
           "options": {
             "settings": {
               "contextPath": "/Orders",
+              "initialLoad": "Enabled",
               "variantManagement": "Page",
               "navigation": {
                 "Orders": {

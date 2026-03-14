@@ -64,9 +64,6 @@ annotate service.Orders with @(
         },
 
         // ── Data columns ──────────────────────────────────────────────────
-        { $Type: 'UI.DataField', Label: 'Description',      Value: description          },
-        { $Type: 'UI.DataField', Label: 'Amount',           Value: amount               },
-        { $Type: 'UI.DataField', Label: 'Status',           Value: status               },
         { $Type: 'UI.DataField', Label: 'Supplier ID',      Value: supplierId           },
         { $Type: 'UI.DataField', Label: 'Supplier Region',   Value: _Supplier.region    },
         // B-3: category must be visible in the table for SemanticObjectMapping to pass it

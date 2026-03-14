@@ -1,5 +1,14 @@
 using NavigationTargetService as service from '../../srv/service';
 
+// Labels for filter bar fields: indicate which Group B feature populates each field
+annotate service.NavTargets with {
+    orderId          @Common.Label: 'Order ID';
+    supplierId       @Common.Label: 'Supplier ID';
+    region           @Common.Label: 'Region';
+    vendor           @Common.Label: 'vendor (B-2: SemanticObjectMapping)';
+    supplierCategory @Common.Label: 'supplierCategory (B-3: IBN Mapping)';
+};
+
 annotate service.NavTargets with @(
     // SelectionFields: these fields appear in the filter bar and are auto-populated
     // when inbound navigation context matches the field names
