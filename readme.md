@@ -244,22 +244,26 @@ annotate service.Orders with {
 
 ---
 
-### B-3: Association field with SemanticObjectMapping on the navigation property
+### B-3: Association field passed via IBN button Mapping
 
-Per SAP documentation, association fields are included in the navigation context **if a `SemanticObjectMapping` is defined on the navigation property itself** (not on a scalar property like `orderId`).
+`Common.SemanticObjectMapping` (used by the A-1 semantic link) **cannot** reference navigation property paths as `LocalProperty` — the SAP Fiori Elements docs explicitly state: _"Navigation properties cannot be used within the annotation as mapping properties."_
 
-Here `_Supplier/category` is sent as `supplierCategory` by placing the mapping on `_Supplier`.
+Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`.
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
-annotate service.Orders with {
-    _Supplier @Common.SemanticObjectMapping: [
-        { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
-    ];
-};
+{
+    $Type          : 'UI.DataFieldForIntentBasedNavigation',
+    SemanticObject : 'NavTarget',
+    Action         : 'display',
+    RequiresContext: true,
+    Mapping        : [
+        { LocalProperty: _Supplier.category, SemanticObjectProperty: 'supplierCategory' },
+    ],
+},
 ```
 
-**What to verify (A-1):** Click the `orderId` semantic link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping for `_Supplier/region` — this is the B-2 contrast).
+**What to verify (A-3/A-4):** Select a row and click "Navigate (A-3)" or click "Open (A-4: Inline)". In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping — B-2 contrast). Note: clicking the A-1 semantic link does **not** pass `supplierCategory` (framework limitation).
 
 ---
 

@@ -4,17 +4,14 @@ using NavigationSourceService as service from '../../srv/service';
 // B-1: SemanticObjectMapping on orderId — when A-1 link is followed, supplierId is renamed to vendor
 // NOTE: SemanticObjectMapping must be co-located with SemanticObject and applies to A-1 only.
 //       For IBN buttons (A-3/A-4), parameter renaming via this annotation has no effect.
+// NOTE: Common.SemanticObjectMapping does NOT support navigation property paths (LocalProperty cannot
+//       reference navigation entity fields). Navigation entity properties can only be passed via
+//       DataFieldForIntentBasedNavigation.Mapping (IBN button pattern — see B-3 on A-3/A-4 below).
 annotate service.Orders with {
-    orderId   @Common.SemanticObject: 'NavTarget'
-              @Common.SemanticObjectMapping: [
-                  { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
-              ];
-    // B-3: SemanticObjectMapping on _Supplier (navigation property) — passes _Supplier/category
-    //      as supplierCategory in the navigation context (per SAP doc: mapping must be on the nav property)
-    // B-2 (contrast): _Supplier/region has NO mapping → region is NOT passed → nav-target region stays empty
-    _Supplier @Common.SemanticObjectMapping: [
-                  { LocalProperty: '_Supplier/category', SemanticObjectProperty: 'supplierCategory' },
-              ];
+    orderId @Common.SemanticObject: 'NavTarget'
+            @Common.SemanticObjectMapping: [
+                { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
+            ];
 };
 
 annotate service.Orders with @(
@@ -40,6 +37,9 @@ annotate service.Orders with @(
         { $Type: 'UI.DataField', Label: 'Order ID (A-1: Semantic Link)', Value: orderId      },
 
         // A-4: Inline IBN — one button per row, appears inside the row
+        // B-3: Mapping passes _Supplier.category as supplierCategory (navigation entity property)
+        //      DataFieldForIntentBasedNavigation.Mapping supports navigation property paths;
+        //      Common.SemanticObjectMapping does NOT → this is the correct pattern for B-3.
         // B-4: NavigationAvailable hides the button for rows where isNavEnabled=false (ORD002, ORD005)
         {
             $Type               : 'UI.DataFieldForIntentBasedNavigation',
@@ -49,6 +49,9 @@ annotate service.Orders with @(
             RequiresContext     : true,
             Inline              : true,
             NavigationAvailable : isNavEnabled,
+            Mapping             : [
+                { LocalProperty: _Supplier.category, SemanticObjectProperty: 'supplierCategory' },
+            ],
         },
 
         // A-5: URL Link — cell shows the URL and opens it in a new tab
@@ -65,7 +68,9 @@ annotate service.Orders with @(
         { $Type: 'UI.DataField', Label: 'Amount',           Value: amount               },
         { $Type: 'UI.DataField', Label: 'Status',           Value: status               },
         { $Type: 'UI.DataField', Label: 'Supplier ID',      Value: supplierId           },
-        { $Type: 'UI.DataField', Label: 'Supplier Region',  Value: _Supplier.region     },
+        { $Type: 'UI.DataField', Label: 'Supplier Region',   Value: _Supplier.region    },
+        // B-3: category must be visible in the table for SemanticObjectMapping to pass it
+        { $Type: 'UI.DataField', Label: 'Supplier Category', Value: _Supplier.category  },
         { $Type: 'UI.DataField', Label: 'Nav Enabled',      Value: isNavEnabled         },
 
         // ── Toolbar buttons ───────────────────────────────────────────────
@@ -79,6 +84,7 @@ annotate service.Orders with @(
         },
 
         // A-3: IBN button requires row selection (disabled until a row is selected)
+        // B-3: Mapping passes _Supplier.category as supplierCategory (navigation entity property)
         // B-4: NavigationAvailable hides the button for rows where isNavEnabled=false (ORD002, ORD005)
         {
             $Type               : 'UI.DataFieldForIntentBasedNavigation',
@@ -87,6 +93,9 @@ annotate service.Orders with @(
             Action              : 'display',
             RequiresContext     : true,
             NavigationAvailable : isNavEnabled,
+            Mapping             : [
+                { LocalProperty: _Supplier.category, SemanticObjectProperty: 'supplierCategory' },
+            ],
         },
     ],
 );

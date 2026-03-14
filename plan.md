@@ -101,3 +101,102 @@ Orders・Suppliers は nav-showcase-plan.md の通り（変更なし）。
 | A-4 | 各行の右端にボタンが表示され、その行のコンテキストで nav-target に遷移する |
 | A-5 | 列が URL リンクになり、クリックで外部サイトが別タブで開く |
 | A-6 | 行クリック（シェブロン）で Object Page ではなく nav-target に遷移する |
+
+---
+
+## Group B 申し送り（次セッション向け）
+
+### 現状
+
+Group A は完全実装済み・`main` にマージ済み。次セッションでは Group B（ナビゲーション時に渡されるコンテキストの制御）を実装する。
+
+### Group B で検証するパターン
+
+| # | パターン名 | 検証内容 |
+|---|---|---|
+| B-1 | SemanticObjectMapping | ソース側フィールド名とターゲット側パラメータ名が異なる場合のマッピング |
+| B-2 | nav エンティティフィールド（マッピングなし） | アソシエーションのフィールドはデフォルトで渡されない |
+| B-3 | nav エンティティフィールド（マッピングあり） | アソシエーションフィールドを明示マッピングすれば渡せる |
+| B-4 | NavigationAvailable | 行の値に応じてナビゲーションボタンの表示/非表示を制御する |
+
+### データモデル — 変更不要
+
+Group B 用のフィールドはすでに実装済み。追加実装は不要。
+
+| フィールド | エンティティ | Group B での用途 |
+|---|---|---|
+| `vendor` | NavTargets | B-1: supplierId（ソース）→ vendor（ターゲット）マッピング受信確認 |
+| `supplierCategory` | NavTargets | B-3: `_Supplier/category`（ソース）→ supplierCategory（ターゲット）マッピング受信確認 |
+| `_Supplier` | Orders | B-2/B-3: アソシエーションフィールド（`_Supplier/region` など）の挙動検証用 |
+| `isNavEnabled` | Orders | B-4: ORD002/ORD005 が `false`（これらの行でボタンを非表示にする） |
+
+### 実装が必要なもの（app/nav-source/annotations.cds）
+
+#### B-1: SemanticObjectMapping
+
+ソース側の `supplierId` をターゲット側の `vendor` パラメータとして渡す。
+
+```cds
+annotate service.Orders with {
+    supplierId @Common.SemanticObjectMapping: [{
+        LocalProperty: supplierId,
+        SemanticObjectProperty: 'vendor'
+    }];
+};
+```
+
+`vendor` は nav-target の SelectionFields に含まれているため、遷移後にフィルターバーへ自動反映される。
+
+#### B-2: アソシエーションフィールド（マッピングなし）
+
+デフォルトでは `_Supplier/region` などのアソシエーション経由フィールドはコンテキストに含まれない。確認のために追加実装は不要 — 現状のまま遷移して `region` が空欄になることを確認する。
+
+#### B-3: アソシエーションフィールド（マッピングあり）
+
+`_Supplier/category` を `supplierCategory` としてターゲットに渡す。
+
+```cds
+annotate service.Orders with {
+    supplierId @Common.SemanticObjectMapping: [{
+        LocalProperty: supplierId,
+        SemanticObjectProperty: 'vendor'
+    }, {
+        LocalProperty: '_Supplier/category',
+        SemanticObjectProperty: 'supplierCategory'
+    }];
+};
+```
+
+（B-1 と B-3 は同じアノテーションに統合して実装する）
+
+#### B-4: NavigationAvailable
+
+`isNavEnabled` が `false` の行（ORD002, ORD005）では、IBN ボタンを非表示にする。
+
+```cds
+annotate service.Orders with @(
+    UI.LineItem: [
+        {
+            $Type          : 'UI.DataFieldForIntentBasedNavigation',
+            ...
+            NavigationAvailable: isNavEnabled,
+        }
+    ]
+);
+```
+
+### 実装手順（Group B）
+
+1. `git checkout -b feature/group-b-context` （main から分岐）
+2. `test/nav-service.test.js` にコンテキスト検証テストを追加（TDD: Red フェーズ）
+   - ただし OData protocol-level では IBN コンテキストは検証できないため、アノテーション構造の確認テストを追加する想定
+3. `app/nav-source/annotations.cds` に B-1〜B-4 アノテーションを追加
+4. 手動確認（nav-target フィルターバーの各フィールドが意図通り埋まるか）
+5. README に Group B セクションを追加
+6. コミット → main へマージ
+
+### 注意事項
+
+- `@Common.SemanticObjectMapping` は `@Common.SemanticObject` と同じプロパティに付与する
+- B-2 は「何も変えない」ことで動作確認するパターン — README で「アソシエーション経由フィールドはデフォルトで渡されない」と明示することが目的
+- B-4 の `NavigationAvailable` は A-3/A-4 の IBN アクションに適用する（A-2 は RequiresContext:false なので無関係）
