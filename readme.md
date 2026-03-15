@@ -50,11 +50,15 @@ annotate service.Orders with {
 
 ---
 
-### A-2: Intent-Based Navigation (IBN) Button (always enabled)
-
-A toolbar button that is always active, even without selecting a row. Navigates to `NavTarget-display` with no entity context.
+### A-2〜A-4: IBN Button / Action (`DataFieldForIntentBasedNavigation`)
 
 IBN (Intent-Based Navigation) is a decoupled navigation mechanism in SAP Fiori. Instead of hardcoding a target URL, the source app declares a semantic intent (`SemanticObject` + `Action`). The FLP resolves the intent at runtime and routes to the registered target app.
+
+All three patterns use `UI.DataFieldForIntentBasedNavigation` and differ only in `RequiresContext` and `Inline`.
+
+#### A-2: Always-Enabled Toolbar Button (`RequiresContext: false`)
+
+A toolbar button that is always active, even without selecting a row. Navigates to `NavTarget-display` with no entity context.
 
 ![A-2: IBN Button (always enabled)](docs/images/A-2.png)
 
@@ -73,7 +77,7 @@ IBN (Intent-Based Navigation) is a decoupled navigation mechanism in SAP Fiori. 
 
 ---
 
-### A-3: IBN Action (requires row selection)
+#### A-3: Context-Required Toolbar Button (`RequiresContext: true`)
 
 A toolbar button that is disabled until one or more rows are selected. Passes the selected row's context to the target.
 
@@ -94,7 +98,7 @@ A toolbar button that is disabled until one or more rows are selected. Passes th
 
 ---
 
-### A-4: Inline IBN
+#### A-4: Inline Button (`Inline: true`)
 
 A button rendered inside each row (not in the toolbar). Each button carries that row's context.
 
@@ -155,6 +159,10 @@ This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent re
     Value         : 'Navigate',
     SemanticObject: 'NavTarget',
     Action        : 'display',
+    Mapping       : [
+        { LocalProperty: supplierId,         SemanticObjectProperty: 'vendor'           },
+        { LocalProperty: _Supplier.category, SemanticObjectProperty: 'supplierCategory' },
+    ],
 },
 ```
 
@@ -384,7 +392,7 @@ annotate service.Orders with {
 
 **What to verify (A-3):** Select a row and click \"Navigate (A-3: With Context)\". In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value.
 
-> **Note:** This example uses A-3, but `DataFieldForIntentBasedNavigation.Mapping` applies equally to any IBN button pattern (A-2, A-3, A-4).
+> **Note:** This example uses A-3, but the `Mapping` property applies equally to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-2, A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-6).
 
 ---
 
@@ -402,7 +410,7 @@ annotate service.Orders with {
 
 `Common.SemanticObjectMapping` (used by the A-1 semantic link) **cannot** reference navigation property paths as `LocalProperty` — the SAP Fiori Elements docs explicitly state: _"Navigation properties cannot be used within the annotation as mapping properties."_
 
-Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`.
+Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`. `DataFieldWithIntentBasedNavigation.Mapping` (A-6) also supports navigation property paths.
 
 ![B-3: Association field passed via IBN button Mapping](docs/images/B-3.png)
 
@@ -419,7 +427,7 @@ Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation
 },
 ```
 
-**What to verify (A-3/A-4):** Select a row and click "Navigate (A-3)" or click "Open (A-4: Inline)". In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping — B-2 contrast). Note: clicking the A-1 semantic link does **not** pass `supplierCategory` (framework limitation).
+**What to verify (A-3/A-4/A-6):** Select a row and click "Navigate (A-3)" or "Open (A-4: Inline)", or click the "Navigate (A-6: Direct IBN Link)" cell link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping — B-2 contrast). Note: clicking the A-1 semantic link does **not** pass `supplierCategory` (framework limitation).
 
 ---
 

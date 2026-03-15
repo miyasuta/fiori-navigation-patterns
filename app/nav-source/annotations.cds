@@ -98,12 +98,24 @@ annotate service.Orders with @(
         // A-6: Direct IBN Link — cell renders as a link, navigates directly to SemanticObject+Action
         //      Unlike A-1 (which shows a popover listing all registered inbounds), this goes
         //      directly to the specified target without any popover.
+        // [EXPERIMENT] B-1: Mapping to rename supplierId → vendor
+        // [EXPERIMENT] B-3: Mapping to pass _Supplier.category as supplierCategory (nav property path)
         {
             $Type         : 'UI.DataFieldWithIntentBasedNavigation',
             Label         : 'Navigate (A-6: Direct IBN Link)',
             Value         : 'Navigate',
             SemanticObject: 'NavTarget',
             Action        : 'display',
+            Mapping       : [
+                {
+                    LocalProperty         : supplierId,
+                    SemanticObjectProperty: 'vendor'
+                },
+                {
+                    LocalProperty         : _Supplier.category,
+                    SemanticObjectProperty: 'supplierCategory'
+                },
+            ],
         },
 
         // ── Data columns ──────────────────────────────────────────────────
