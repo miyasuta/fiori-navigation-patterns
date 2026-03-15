@@ -95,6 +95,17 @@ annotate service.Orders with @(
             ![@HTML5.LinkTarget]: '_blank',
         },
 
+        // A-6: Direct IBN Link — cell renders as a link, navigates directly to SemanticObject+Action
+        //      Unlike A-1 (which shows a popover listing all registered inbounds), this goes
+        //      directly to the specified target without any popover.
+        {
+            $Type         : 'UI.DataFieldWithIntentBasedNavigation',
+            Label         : 'Navigate (A-6: Direct IBN Link)',
+            Value         : 'Navigate',
+            SemanticObject: 'NavTarget',
+            Action        : 'display',
+        },
+
         // ── Data columns ──────────────────────────────────────────────────
         {
             $Type: 'UI.DataField',

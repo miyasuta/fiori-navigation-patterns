@@ -62,6 +62,18 @@ describe('NavigationTargetService', () => {
   })
 })
 
+describe('Group A Annotation Structure', () => {
+  const { GET } = cds.test(__dirname + '/..')
+
+  it('metadataShouldContainDataFieldWithIntentBasedNavigation', async () => {
+    const { data } = await GET('/odata/v4/navigation-source/$metadata')
+    assert.ok(
+      data.includes('DataFieldWithIntentBasedNavigation'),
+      'DataFieldWithIntentBasedNavigation annotation must be present in $metadata'
+    )
+  })
+})
+
 describe('Group B Annotation Structure', () => {
   const { GET } = cds.test(__dirname + '/..')
 

@@ -139,11 +139,34 @@ A table column whose cell value is rendered as a hyperlink to an external URL. O
 
 ---
 
-### A-6: Replace Row-Click Navigation
+### A-6: Direct IBN Link
+
+A table column where each cell is rendered as a hyperlink that navigates **directly** to a specific `SemanticObject + Action` — no popover.
+
+This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent resolution and shows a popover listing all registered inbound targets. `DataFieldWithIntentBasedNavigation` skips the popover and navigates immediately to the declared target.
+
+![A-6: Direct IBN Link](docs/images/A-6.png)
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+{
+    $Type         : 'UI.DataFieldWithIntentBasedNavigation',
+    Label         : 'Navigate (A-6: Direct IBN Link)',
+    Value         : 'Navigate',
+    SemanticObject: 'NavTarget',
+    Action        : 'display',
+},
+```
+
+**What to verify:** A "Navigate (A-6: Direct IBN Link)" column appears with each cell showing "Navigate" as a blue hyperlink. Clicking it navigates directly to the Navigation Target app — no popover appears. Compare with A-1: clicking `orderId` shows a popover with two options first.
+
+---
+
+### A-7: Replace Row-Click Navigation
 
 By default, clicking a row navigates to the Object Page. This pattern replaces that behavior so the row click (chevron) navigates to an external app instead.
 
-![A-6: Replace Row-Click Navigation](docs/images/A-6.png)
+![A-7: Replace Row-Click Navigation](docs/images/A-7.png)
 
 **Implementation** — `app/nav-source/webapp/manifest.json`:
 ```json
@@ -452,8 +475,8 @@ srv/
   service.cds             — NavigationSourceService, NavigationTargetService
 
 app/nav-source/
-  annotations.cds         — A-1 through A-5 annotations, B-1/B-3/B-4 context annotations, SemanticObjectUnavailableActions
-  webapp/manifest.json    — A-6, crossNavigation.outbounds, FLP inbound
+  annotations.cds         — A-1 through A-6 annotations, B-1/B-3/B-4 context annotations, SemanticObjectUnavailableActions
+  webapp/manifest.json    — A-7, crossNavigation.outbounds, FLP inbound
 
 app/nav-target/
   annotations.cds         — SelectionFields for filter bar population
