@@ -6,8 +6,8 @@ A CAP Node.js + SAP Fiori Elements (OData V4) project that demonstrates outbound
 
 This project serves as a hands-on reference for developers learning how to implement cross-application navigation in SAP Fiori Elements apps. It covers two groups of patterns:
 
-- **Group A** — How to trigger navigation (implemented)
-- **Group B** — What context gets passed to the target app (implemented)
+- **Group A** — How to trigger navigation
+- **Group B** — What context gets passed to the target app
 
 ## Getting Started
 
@@ -35,7 +35,7 @@ All patterns are visible in the **nav-source List Report**.
 
 ### A-1: Semantic Link
 
-The `orderId` column renders as a clickable link. Clicking it opens a quick-actions popover listing all registered intents for the `NavTarget` semantic object. Three inbounds are registered (`display`, `manage`, `analyze`), but `analyze` is suppressed via `SemanticObjectUnavailableActions` — so the popover shows two navigation options. This demonstrates both multi-target resolution and selective action hiding.
+The `orderId` column renders as a clickable link. Clicking it opens a quick-actions popover listing all registered intents for the `NavTarget` semantic object. `app/nav-target/webapp/manifest.json` registers three inbound targets for the `NavTarget` semantic object (`display`, `manage`, `analyze`), but `analyze` is suppressed via [`SemanticObjectUnavailableActions`](#hiding-unwanted-actions-from-a-semantic-object) — so the popover shows two navigation options. This demonstrates both multi-target resolution and selective action hiding.
 
 ![A-1: Semantic Link](docs/images/A-1.png)
 
@@ -278,6 +278,8 @@ annotate service.Orders with {
 
 The target app receives inbound navigation context and pre-populates the filter bar fields automatically when parameter names match `SelectionFields`.
 
+![Navigation Target App](docs/images/target.png)
+
 **Inbound registration** — `app/nav-target/webapp/manifest.json`:
 ```json
 "crossNavigation": {
@@ -310,13 +312,17 @@ UI.SelectionFields: [ orderId, supplierId, region, vendor, supplierCategory ]
 
 ## Group B — Navigation Context Control
 
-All patterns control **what data is passed** to the target app during IBN navigation.
+This section covers **what data is passed** to the target app during navigation.
 
-### B-1: SemanticObjectMapping (field rename)
+### B-1: Field Rename via Mapping
 
-`SemanticObjectMapping` renames a local field when it is passed as a navigation parameter. Here `supplierId` on the source is sent as `vendor` to the target.
+Two mechanisms rename a local field when it is passed as a navigation parameter. Both send `supplierId` as `vendor` to the target.
 
-**Applies to:** A-1 (Semantic Link) only. For IBN buttons (A-3/A-4) and row-click (A-6), parameter renaming via this annotation has no effect — those navigations pass fields under their original names.
+![B-1: Field Rename via Mapping](docs/images/B-1.png)
+
+---
+
+#### A-1: `Common.SemanticObjectMapping`
 
 **Key rule:** `@Common.SemanticObjectMapping` must be placed on the **same property** as `@Common.SemanticObject`. The FLP resolves the mapping only when following a semantic link tied to that semantic object.
 
@@ -336,6 +342,29 @@ annotate service.Orders with {
 
 ---
 
+#### A-3: `DataFieldForIntentBasedNavigation.Mapping`
+
+`DataFieldForIntentBasedNavigation.Mapping` supports the same direct field renaming as `Common.SemanticObjectMapping`, and additionally supports navigation property paths (see B-3).
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+{
+    $Type          : 'UI.DataFieldForIntentBasedNavigation',
+    SemanticObject : 'NavTarget',
+    Action         : 'display',
+    RequiresContext: true,
+    Mapping        : [
+        { LocalProperty: supplierId, SemanticObjectProperty: 'vendor' },
+    ],
+},
+```
+
+**What to verify (A-3):** Select a row and click \"Navigate (A-3: With Context)\". In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value.
+
+> **Note:** This example uses A-3, but `DataFieldForIntentBasedNavigation.Mapping` applies equally to any IBN button pattern (A-2, A-3, A-4).
+
+---
+
 ### B-2: Association field without mapping — not passed
 
 `Orders` has no direct `region` field. `Suppliers` has `region`, but it is only accessible via the `_Supplier` navigation property. Without a `SemanticObjectMapping` on `_Supplier`, `_Supplier/region` is excluded from the navigation context.
@@ -351,6 +380,8 @@ annotate service.Orders with {
 `Common.SemanticObjectMapping` (used by the A-1 semantic link) **cannot** reference navigation property paths as `LocalProperty` — the SAP Fiori Elements docs explicitly state: _"Navigation properties cannot be used within the annotation as mapping properties."_
 
 Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`.
+
+![B-3: Association field passed via IBN button Mapping](docs/images/B-3.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -386,6 +417,8 @@ Measures in analytical services (`Analytics.v1.CustomAggregate`) are also exclud
 These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, and A-6 alike. A-2 carries no row context to begin with, and A-5 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
 
 In this project, `internalNote` is annotated with `UI.ExcludeFromNavigationContext`. The field is visible in the nav-source table and also appears as a filter bar field in nav-target — but it is never included in the navigation parameters regardless of which trigger is used.
+
+![B-4: Handling Sensitive and Inapplicable Data](docs/images/B-4.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
