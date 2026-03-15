@@ -86,23 +86,14 @@ annotate service.Orders with @(
             }, ],
         },
 
-        // A-5: URL Link — cell shows the URL and opens it in a new tab
-        {
-            $Type               : 'UI.DataFieldWithUrl',
-            Label               : 'External Link (A-5)',
-            Value               : externalUrl,
-            Url                 : externalUrl,
-            ![@HTML5.LinkTarget]: '_blank',
-        },
-
-        // A-6: Direct IBN Link — cell renders as a link, navigates directly to SemanticObject+Action
+        // A-5: Direct IBN Link — cell renders as a link, navigates directly to SemanticObject+Action
         //      Unlike A-1 (which shows a popover listing all registered inbounds), this goes
         //      directly to the specified target without any popover.
         // [EXPERIMENT] B-1: Mapping to rename supplierId → vendor
         // [EXPERIMENT] B-3: Mapping to pass _Supplier.category as supplierCategory (nav property path)
         {
             $Type         : 'UI.DataFieldWithIntentBasedNavigation',
-            Label         : 'Navigate (A-6: Direct IBN Link)',
+            Label         : 'Navigate (A-5: Direct IBN Link)',
             Value         : 'Navigate',
             SemanticObject: 'NavTarget',
             Action        : 'display',
@@ -116,6 +107,15 @@ annotate service.Orders with @(
                     SemanticObjectProperty: 'supplierCategory'
                 },
             ],
+        },
+
+        // A-6: URL Link — cell shows the URL and opens it in a new tab
+        {
+            $Type               : 'UI.DataFieldWithUrl',
+            Label               : 'External Link (A-6)',
+            Value               : externalUrl,
+            Url                 : externalUrl,
+            ![@HTML5.LinkTarget]: '_blank',
         },
 
         // ── Data columns ──────────────────────────────────────────────────

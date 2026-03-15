@@ -122,40 +122,19 @@ A button rendered inside each row (not in the toolbar). Each button carries that
 
 ---
 
-### A-5: URL Link
-
-A table column whose cell value is rendered as a hyperlink to an external URL. Opens in a new browser tab.
-
-![A-5: URL Link](docs/images/A-5.png)
-
-**Implementation** — `app/nav-source/annotations.cds`:
-```cds
-{
-    $Type              : 'UI.DataFieldWithUrl',
-    Label              : 'External Link (A-5)',
-    Value              : externalUrl,
-    Url                : externalUrl,
-    ![@HTML5.LinkTarget]: '_blank',
-}
-```
-
-**What to verify:** The `External Link (A-5)` column shows clickable URLs that open in a new tab.
-
----
-
-### A-6: Direct IBN Link
+### A-5: Direct IBN Link
 
 A table column where each cell is rendered as a hyperlink that navigates **directly** to a specific `SemanticObject + Action` — no popover.
 
 This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent resolution and shows a popover listing all registered inbound targets. `DataFieldWithIntentBasedNavigation` skips the popover and navigates immediately to the declared target.
 
-![A-6: Direct IBN Link](docs/images/A-6.png)
+![A-5: Direct IBN Link](docs/images/A-5.png)
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
 {
     $Type         : 'UI.DataFieldWithIntentBasedNavigation',
-    Label         : 'Navigate (A-6: Direct IBN Link)',
+    Label         : 'Navigate (A-5: Direct IBN Link)',
     Value         : 'Navigate',
     SemanticObject: 'NavTarget',
     Action        : 'display',
@@ -166,7 +145,28 @@ This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent re
 },
 ```
 
-**What to verify:** A "Navigate (A-6: Direct IBN Link)" column appears with each cell showing "Navigate" as a blue hyperlink. Clicking it navigates directly to the Navigation Target app — no popover appears. Compare with A-1: clicking `orderId` shows a popover with two options first.
+**What to verify:** A "Navigate (A-5: Direct IBN Link)" column appears with each cell showing "Navigate" as a blue hyperlink. Clicking it navigates directly to the Navigation Target app — no popover appears. Compare with A-1: clicking `orderId` shows a popover with two options first.
+
+---
+
+### A-6: URL Link
+
+A table column whose cell value is rendered as a hyperlink to an external URL. Opens in a new browser tab.
+
+![A-6: URL Link](docs/images/A-6.png)
+
+**Implementation** — `app/nav-source/annotations.cds`:
+```cds
+{
+    $Type              : 'UI.DataFieldWithUrl',
+    Label              : 'External Link (A-6)',
+    Value              : externalUrl,
+    Url                : externalUrl,
+    ![@HTML5.LinkTarget]: '_blank',
+}
+```
+
+**What to verify:** The `External Link (A-6)` column shows clickable URLs that open in a new tab.
 
 ---
 
@@ -392,7 +392,7 @@ annotate service.Orders with {
 
 **What to verify (A-3):** Select a row and click \"Navigate (A-3: With Context)\". In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value.
 
-> **Note:** This example uses A-3, but the `Mapping` property applies equally to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-2, A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-6).
+> **Note:** This example uses A-3, but the `Mapping` property applies equally to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-2, A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-5).
 
 ---
 
@@ -410,7 +410,7 @@ annotate service.Orders with {
 
 `Common.SemanticObjectMapping` (used by the A-1 semantic link) **cannot** reference navigation property paths as `LocalProperty` — the SAP Fiori Elements docs explicitly state: _"Navigation properties cannot be used within the annotation as mapping properties."_
 
-Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`. `DataFieldWithIntentBasedNavigation.Mapping` (A-6) also supports navigation property paths.
+Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`. `DataFieldWithIntentBasedNavigation.Mapping` (A-5) also supports navigation property paths.
 
 ![B-3: Association field passed via IBN button Mapping](docs/images/B-3.png)
 
@@ -427,7 +427,7 @@ Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation
 },
 ```
 
-**What to verify (A-3/A-4/A-6):** Select a row and click "Navigate (A-3)" or "Open (A-4: Inline)", or click the "Navigate (A-6: Direct IBN Link)" cell link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping — B-2 contrast). Note: clicking the A-1 semantic link does **not** pass `supplierCategory` (framework limitation).
+**What to verify (A-3/A-4/A-5):** Select a row and click "Navigate (A-3)" or "Open (A-4: Inline)", or click the "Navigate (A-5: Direct IBN Link)" cell link. In nav-target, the `supplierCategory` filter field is pre-filled with the supplier's `category` value. The `region` filter remains empty (no mapping — B-2 contrast). Note: clicking the A-1 semantic link does **not** pass `supplierCategory` (framework limitation).
 
 ---
 
@@ -445,7 +445,7 @@ Three annotation types cause a property to be excluded:
 
 Measures in analytical services (`Analytics.v1.CustomAggregate`) are also excluded automatically.
 
-These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, and A-6 alike. A-2 carries no row context to begin with, and A-5 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
+These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, and A-5 alike. A-2 carries no row context to begin with, and A-6 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
 
 In this project, `internalNote` is annotated with `UI.ExcludeFromNavigationContext`. The field is visible in the nav-source table and also appears as a filter bar field in nav-target — but it is never included in the navigation parameters regardless of which trigger is used.
 
