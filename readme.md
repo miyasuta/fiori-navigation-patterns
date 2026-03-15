@@ -2,12 +2,36 @@
 
 A CAP Node.js + SAP Fiori Elements (OData V4) project that demonstrates outbound navigation patterns from a List Report.
 
+## Table of Contents
+
+- [Purpose](#purpose)
+- [Getting Started](#getting-started)
+- [App Structure](#app-structure)
+- [Group A — Navigation Triggers](#group-a--navigation-triggers)
+  - [A-1: Semantic Link](#a-1-semantic-link)
+  - [A-2〜A-4: IBN Button / Action](#a-2a-4-ibn-button--action-datafieldforintentbasednavigation)
+  - [A-5: Direct IBN Link](#a-5-direct-ibn-link)
+  - [A-6: URL Link](#a-6-url-link)
+  - [A-7: Replace Row-Click Navigation](#a-7-replace-row-click-navigation)
+  - [Supplementary: Dynamic Semantic Object](#dynamic-semantic-object-a-1-only)
+  - [Supplementary: NavigationAvailable](#navigationavailable-conditional-button-visibility)
+  - [Supplementary: Hiding Unwanted Actions](#hiding-unwanted-actions-from-a-semantic-object)
+- [Navigation Target App](#navigation-target-app-nav-target)
+- [Group B — Navigation Context Control](#group-b--navigation-context-control)
+  - [B-1: Field Rename via Mapping](#b-1-field-rename-via-mapping)
+  - [B-2: Association field without mapping](#b-2-association-field-without-mapping--not-passed)
+  - [B-3: Association field passed via IBN Mapping](#b-3-association-field-passed-via-ibn-mapping)
+  - [B-4: Handling Sensitive and Inapplicable Data](#b-4-handling-sensitive-and-inapplicable-data)
+- [Project Structure](#project-structure)
+
 ## Purpose
 
 This project serves as a hands-on reference for developers learning how to implement cross-application navigation in SAP Fiori Elements apps. It covers two groups of patterns:
 
 - **Group A** — How to trigger navigation
 - **Group B** — What context gets passed to the target app
+
+> **Scope:** This project covers navigation patterns achievable through **OData annotations** only. Controller extensions are out of scope, though they may be explored separately in the future.
 
 ## Getting Started
 
@@ -373,9 +397,9 @@ annotate service.Orders with {
 
 ---
 
-#### A-3: `DataFieldForIntentBasedNavigation.Mapping`
+#### A-3〜A-5: `Mapping` property (all IBN patterns)
 
-`DataFieldForIntentBasedNavigation.Mapping` supports the same direct field renaming as `Common.SemanticObjectMapping`, and additionally supports navigation property paths (see B-3).
+Both `DataFieldForIntentBasedNavigation` (A-2〜A-4) and `DataFieldWithIntentBasedNavigation` (A-5) support a `Mapping` property that renames a local field when passed as a navigation parameter. This supports the same direct field renaming as `Common.SemanticObjectMapping`, and additionally supports navigation property paths (see B-3).
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -390,9 +414,7 @@ annotate service.Orders with {
 },
 ```
 
-**What to verify (A-3):** Select a row and click \"Navigate (A-3: With Context)\". In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value.
-
-> **Note:** This example uses A-3, but the `Mapping` property applies equally to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-2, A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-5).
+**What to verify (A-3):** Select a row and click "Navigate (A-3: With Context)". In nav-target, the `vendor` filter field is pre-filled with the order's `supplierId` value.
 
 ---
 
@@ -400,17 +422,19 @@ annotate service.Orders with {
 
 `Orders` has no direct `region` field. `Suppliers` has `region`, but it is only accessible via the `_Supplier` navigation property. Without a `SemanticObjectMapping` on `_Supplier`, `_Supplier/region` is excluded from the navigation context.
 
+![B-2: Association field without mapping — not passed](docs/images/B-2.png)
+
 **Implementation:** No code change needed — the absence of mapping is the pattern itself.
 
 **What to verify (A-1):** Click the `orderId` semantic link. In nav-target, the `region` filter field is **empty** — confirming that `_Supplier/region` is not passed by default.
 
 ---
 
-### B-3: Association field passed via IBN button Mapping
+### B-3: Association field passed via IBN Mapping
 
 `Common.SemanticObjectMapping` (used by the A-1 semantic link) **cannot** reference navigation property paths as `LocalProperty` — the SAP Fiori Elements docs explicitly state: _"Navigation properties cannot be used within the annotation as mapping properties."_
 
-Instead, `DataFieldForIntentBasedNavigation.Mapping` **does** support navigation property paths. By adding a `Mapping` entry to A-3 and A-4 buttons, `_Supplier.category` is passed as `supplierCategory`. `DataFieldWithIntentBasedNavigation.Mapping` (A-5) also supports navigation property paths.
+Instead, the `Mapping` property on IBN patterns **does** support navigation property paths. This applies to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-5).
 
 ![B-3: Association field passed via IBN button Mapping](docs/images/B-3.png)
 
@@ -445,7 +469,7 @@ Three annotation types cause a property to be excluded:
 
 Measures in analytical services (`Analytics.v1.CustomAggregate`) are also excluded automatically.
 
-These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, and A-5 alike. A-2 carries no row context to begin with, and A-6 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
+These annotations apply to **all external outbound navigation patterns** — A-1, A-3, A-4, A-5, and A-7 alike. A-2 carries no row context to begin with, and A-6 uses a direct URL rather than the IBN context mechanism, so those two are not affected.
 
 In this project, `internalNote` is annotated with `UI.ExcludeFromNavigationContext`. The field is visible in the nav-source table and also appears as a filter bar field in nav-target — but it is never included in the navigation parameters regardless of which trigger is used.
 
@@ -458,17 +482,9 @@ annotate service.Orders with {
 };
 ```
 
-**What to verify:** Select any row in nav-source (e.g. ORD001, which has `internalNote = "Check payment terms before shipping"`) and navigate using A-1, A-3, or A-4. In nav-target, the `orderId` filter field is pre-filled — but the `internalNote (B-4: ExcludeFromNavigationContext)` filter field is empty for all navigation triggers, confirming the exclusion is pattern-independent.
+**What to verify:** Select any row in nav-source (e.g. ORD001, which has `internalNote = "Check payment terms before shipping"`) and navigate using A-1, A-3, A-4, A-5, or A-7 (row click). In nav-target, the `orderId` filter field is pre-filled — but the `internalNote (B-4: ExcludeFromNavigationContext)` filter field is empty for all navigation triggers, confirming the exclusion is pattern-independent.
 
 > **Caution:** Sensitive properties of navigation entities beyond one level are **not** automatically removed from the navigation context.
-
----
-
-## Known Constraints
-
-| Constraint | Detail |
-|---|---|
-| FLP sandbox only | Cross-app IBN requires an FLP context. Use `http://localhost:4004/$launchpad` — direct app URLs will not resolve intent-based navigation. |
 
 ---
 
