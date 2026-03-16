@@ -8,6 +8,7 @@ A CAP Node.js + SAP Fiori Elements (OData V4) project that demonstrates outbound
 - [Getting Started](#getting-started)
 - [App Structure](#app-structure)
 - [Group A — Navigation Triggers](#group-a--navigation-triggers)
+  - [Which pattern should I use?](#which-pattern-should-i-use)
   - [A-1: Semantic Link](#a-1-semantic-link)
   - [A-2〜A-4: IBN Button / Action](#a-2a-4-ibn-button--action-datafieldforintentbasednavigation)
   - [A-5: Direct IBN Link](#a-5-direct-ibn-link)
@@ -52,6 +53,24 @@ Open `http://localhost:4004/$launchpad` to access the FLP sandbox. Click the **N
 ---
 
 ## Group A — Navigation Triggers
+
+### Which pattern should I use?
+
+```mermaid
+flowchart TD
+    A([Start]) --> B{Navigate outside\nFiori Launchpad?}
+    B -- Yes --> A6[A-6: URL Link]
+    B -- No --> C{Replace row-click\nnavigation?}
+    C -- Yes --> A7[A-7: Replace Row-Click Navigation]
+    C -- No --> D{Row context\nneeded?}
+    D -- No --> A2[A-2: IBN Button\nalways enabled]
+    D -- Yes --> E{Multiple targets\nvia popover?}
+    E -- Yes --> A1[A-1: Semantic Link]
+    E -- No --> F{UI placement?}
+    F -- Column cell link --> A5[A-5: Direct IBN Link]
+    F -- Toolbar button --> A3[A-3: IBN Button\nrequires selection]
+    F -- Inline row button --> A4[A-4: Inline IBN]
+```
 
 All patterns are visible in the **nav-source List Report**.
 
