@@ -57,7 +57,7 @@ Open `http://localhost:4004/$launchpad` to access the FLP sandbox. Click the **N
 ### Which pattern should I use?
 
 ```mermaid
-flowchart TD
+flowchart LR
     A([Start]) --> B{Navigate outside\nFiori Launchpad?}
     B -- Yes --> A6[A-6: URL Link]
     B -- No --> C{Replace row-click\nnavigation?}
