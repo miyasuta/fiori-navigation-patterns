@@ -36,6 +36,8 @@ This project serves as a hands-on reference for developers learning how to imple
 
 ## Getting Started
 
+> **Verified with UI5 version 1.145.0**
+
 ```bash
 npm install
 cds watch
