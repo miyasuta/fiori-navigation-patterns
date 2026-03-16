@@ -55,13 +55,13 @@ Open `http://localhost:4004/$launchpad` to access the FLP sandbox. Click the **N
 
 All patterns are visible in the **nav-source List Report**.
 
-![Navigation Source List Report](docs/images/source.png)
+<img src="docs/images/source.png" width="612" alt="Navigation Source List Report">
 
 ### A-1: Semantic Link
 
 The `orderId` column renders as a clickable link. Clicking it opens a quick-actions popover listing all registered intents for the `NavTarget` semantic object. `app/nav-target/webapp/manifest.json` registers three inbound targets for the `NavTarget` semantic object (`display`, `manage`, `analyze`), but `analyze` is suppressed via [`SemanticObjectUnavailableActions`](#hiding-unwanted-actions-from-a-semantic-object) — so the popover shows two navigation options. This demonstrates both multi-target resolution and selective action hiding.
 
-![A-1: Semantic Link](docs/images/A-1.png)
+<img src="docs/images/A-1.png" width="612" alt="A-1: Semantic Link">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -84,7 +84,7 @@ All three patterns use `UI.DataFieldForIntentBasedNavigation` and differ only in
 
 A toolbar button that is always active, even without selecting a row. Navigates to `NavTarget-display` with no entity context.
 
-![A-2: IBN Button (always enabled)](docs/images/A-2.png)
+<img src="docs/images/A-2.png" width="612" alt="A-2: IBN Button (always enabled)">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -105,7 +105,7 @@ A toolbar button that is always active, even without selecting a row. Navigates 
 
 A toolbar button that is disabled until one or more rows are selected. Passes the selected row's context to the target.
 
-![A-3: IBN Action (requires row selection)](docs/images/A-3.png)
+<img src="docs/images/A-3.png" width="612" alt="A-3: IBN Action (requires row selection)">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -126,7 +126,7 @@ A toolbar button that is disabled until one or more rows are selected. Passes th
 
 A button rendered inside each row (not in the toolbar). Each button carries that row's context.
 
-![A-4: Inline IBN](docs/images/A-4.png)
+<img src="docs/images/A-4.png" width="612" alt="A-4: Inline IBN">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -152,7 +152,7 @@ A table column where each cell is rendered as a hyperlink that navigates **direc
 
 This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent resolution and shows a popover listing all registered inbound targets. `DataFieldWithIntentBasedNavigation` skips the popover and navigates immediately to the declared target.
 
-![A-5: Direct IBN Link](docs/images/A-5.png)
+<img src="docs/images/A-5.png" width="612" alt="A-5: Direct IBN Link">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -177,7 +177,7 @@ This contrasts with A-1 (`@Common.SemanticObject`), which triggers FLP intent re
 
 A table column whose cell value is rendered as a hyperlink to an external URL. Opens in a new browser tab.
 
-![A-6: URL Link](docs/images/A-6.png)
+<img src="docs/images/A-6.png" width="612" alt="A-6: URL Link">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -198,7 +198,7 @@ A table column whose cell value is rendered as a hyperlink to an external URL. O
 
 By default, clicking a row navigates to the Object Page. This pattern replaces that behavior so the row click (chevron) navigates to an external app instead.
 
-![A-7: Replace Row-Click Navigation](docs/images/A-7.png)
+<img src="docs/images/A-7.png" width="612" alt="A-7: Replace Row-Click Navigation">
 
 **Implementation** — `app/nav-source/webapp/manifest.json`:
 ```json
@@ -277,7 +277,7 @@ entity Orders {
 
 In this project, `ORD002` and `ORD005` have `isNavEnabled = false` — their inline button (A-4) and context-aware toolbar button (A-3) are hidden.
 
-![NavigationAvailable: Conditional Button Visibility](docs/images/Conditional%20Button%20Visibility.png)
+<img src="docs/images/Conditional%20Button%20Visibility.png" width="612" alt="NavigationAvailable: Conditional Button Visibility">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -333,7 +333,7 @@ annotate service.Orders with {
 
 The target app receives inbound navigation context and pre-populates the filter bar fields automatically when parameter names match `SelectionFields`.
 
-![Navigation Target App](docs/images/target.png)
+<img src="docs/images/target.png" width="612" alt="Navigation Target App">
 
 **Inbound registration** — `app/nav-target/webapp/manifest.json`:
 ```json
@@ -373,7 +373,7 @@ This section covers **what data is passed** to the target app during navigation.
 
 Two mechanisms rename a local field when it is passed as a navigation parameter. Both send `supplierId` as `vendor` to the target.
 
-![B-1: Field Rename via Mapping](docs/images/B-1.png)
+<img src="docs/images/B-1.png" width="612" alt="B-1: Field Rename via Mapping">
 
 ---
 
@@ -422,7 +422,7 @@ Both `DataFieldForIntentBasedNavigation` (A-2〜A-4) and `DataFieldWithIntentBas
 
 `Orders` has no direct `region` field. `Suppliers` has `region`, but it is only accessible via the `_Supplier` navigation property. Without a `SemanticObjectMapping` on `_Supplier`, `_Supplier/region` is excluded from the navigation context.
 
-![B-2: Association field without mapping — not passed](docs/images/B-2.png)
+<img src="docs/images/B-2.png" width="612" alt="B-2: Association field without mapping — not passed">
 
 **Implementation:** No code change needed — the absence of mapping is the pattern itself.
 
@@ -436,7 +436,7 @@ Both `DataFieldForIntentBasedNavigation` (A-2〜A-4) and `DataFieldWithIntentBas
 
 Instead, the `Mapping` property on IBN patterns **does** support navigation property paths. This applies to all IBN patterns: `DataFieldForIntentBasedNavigation` (A-3, A-4) and `DataFieldWithIntentBasedNavigation` (A-5).
 
-![B-3: Association field passed via IBN button Mapping](docs/images/B-3.png)
+<img src="docs/images/B-3.png" width="612" alt="B-3: Association field passed via IBN button Mapping">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
@@ -473,7 +473,7 @@ These annotations apply to **all external outbound navigation patterns** — A-1
 
 In this project, `internalNote` is annotated with `UI.ExcludeFromNavigationContext`. The field is visible in the nav-source table and also appears as a filter bar field in nav-target — but it is never included in the navigation parameters regardless of which trigger is used.
 
-![B-4: Handling Sensitive and Inapplicable Data](docs/images/B-4.png)
+<img src="docs/images/B-4.png" width="612" alt="B-4: Handling Sensitive and Inapplicable Data">
 
 **Implementation** — `app/nav-source/annotations.cds`:
 ```cds
