@@ -34,6 +34,8 @@ This project serves as a hands-on reference for developers learning how to imple
 
 > **Scope:** This project covers navigation patterns achievable through **OData annotations** only. Controller extensions are out of scope, though they may be explored separately in the future.
 
+**Reference:** [Navigation from an App (Outbound Navigation) | UI5 Demo Kit](https://ui5.sap.com/#/topic/d782acf8bfd74107ad6a04f0361c5f62)
+
 ## Getting Started
 
 > **Verified with UI5 version 1.145.0**
