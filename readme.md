@@ -388,7 +388,7 @@ UI.SelectionFields: [ orderId, supplierId, region, vendor, supplierCategory ]
 
 ## Group B — Navigation Context Control
 
-This section covers **what data is passed** to the target app during navigation.
+This section covers how to control what data is passed to the target application.
 
 ### B-1: Field Rename via Mapping
 
